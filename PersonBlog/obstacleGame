@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avoid Obstacles Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #gameArea {
+      position: relative;
+      width: 600px;
+      height: 300px;
+      background-color: #fff;
+      border: 2px solid #000;
+      overflow: hidden;
+    }
+    #character {
+      width: 50px;
+      height: 50px;
+      background-color: #3498db;
+      position: absolute;
+      bottom: 0;
+    }
+    .obstacle {
+      width: 20px;
+      height: 60px;
+      background-color: #e74c3c;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      animation: move 2s linear infinite;
+    }
+    @keyframes move {
+      from {
+        right: 0;
+      }
+      to {
+        right: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div id="character"></div>
+  </div>
+
+  <script>
+    let character = document.getElementById("character");
+    let gameArea = document.getElementById("gameArea");
+    let jumping = false;
+
+    function jump() {
+      if (jumping) return;
+      jumping = true;
+
+      let jumpHeight = 0;
+      let jumpInterval = setInterval(() => {
+        if (jumpHeight >= 150) {
+          clearInterval(jumpInterval);
+          let fallInterval = setInterval(() => {
+            if (jumpHeight <= 0) {
+              clearInterval(fallInterval);
+              jumping = false;
+            } else {
+              jumpHeight -= 5;
+              character.style.bottom = jumpHeight + "px";
+            }
+          }, 20);
+        } else {
+          jumpHeight += 5;
+          character.style.bottom = jumpHeight + "px";
+        }
+      }, 20);
+    }
+
+    document.body.onkeydown = function (e) {
+      if (e.code === "Space") {
+        jump();
+      }
+    };
+
+    function createObstacle() {
+      let obstacle = document.createElement("div");
+      obstacle.classList.add("obstacle");
+      gameArea.appendChild(obstacle);
+
+      let moveInterval = setInterval(() => {
+        let obstacleRight = parseInt(window.getComputedStyle(obstacle).getPropertyValue("right"));
+        let characterBottom = parseInt(window.getComputedStyle(character).getPropertyValue("bottom"));
+        
+        if (obstacleRight >= 550 && obstacleRight <= 600 && characterBottom <= 60) {
+          clearInterval(moveInterval);
+          alert("Game Over!");
+          location.reload();
+        }
+
+        if (obstacleRight >= 600) {
+          clearInterval(moveInterval);
+          gameArea.removeChild(obstacle);
+        }
+      }, 20);
+    }
+
+    setInterval(createObstacle, 2000);
+  </script>
+</body>
+</html>
